@@ -9,10 +9,10 @@ library(sf)
 library(cartography)
 
 #data import
-europe<-readOGR(dsn="C:/Users/Emilien Veron/Documents/Thesis/Paper_2/Autossudisance alim europe/Europe/Europe_shp/Europe.shp",layer="Europe")
-code<-read.csv2("C:/Users/Emilien Veron/Documents/Thesis/Paper_2/Autossudisance alim europe/Europe/code_pays.csv")
-area_eu<-read.csv("C:/Users/Emilien Veron/Documents/Thesis/Paper_2/Autossudisance alim europe/Europe/surf_org_eu.csv")
-sale_org_ue<-read.csv2("C:/Users/Emilien Veron/Documents/Thesis/Paper_2/Autossudisance alim europe/Europe/vente_ue.csv")
+europe<-readOGR(dsn="~/Europe.shp",layer="Europe")
+code<-read.csv2("~/country_code.csv")
+area_eu<-read.csv("~/area_org_eu.csv")
+sale_org_ue<-read.csv2("~/sales_eu.csv")
 
 #data cleaning
 area_eu<-filter(area_eu, TIME_PERIOD==2019)
