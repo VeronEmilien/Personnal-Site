@@ -1,0 +1,47 @@
+############## Code Organic agricultre in the European Union by Dougenik algorithme projection ############## 
+# Maps and interpretations are available here: https://sites.google.com/view/emilien-veron/maps?authuser=0 #
+####### VERON Emilien 08/07/2021  ########
+
+library(rgdal)
+library(tidyverse)
+library(cartogram)
+library(sf)
+library(cartography)
+
+#data import
+europe<-readOGR(dsn="C:/Users/Emilien Veron/Documents/Thesis/Paper_2/Autossudisance alim europe/Europe/Europe_shp/Europe.shp",layer="Europe")
+code<-read.csv2("C:/Users/Emilien Veron/Documents/Thesis/Paper_2/Autossudisance alim europe/Europe/code_pays.csv")
+area_eu<-read.csv("C:/Users/Emilien Veron/Documents/Thesis/Paper_2/Autossudisance alim europe/Europe/surf_org_eu.csv")
+sale_org_ue<-read.csv2("C:/Users/Emilien Veron/Documents/Thesis/Paper_2/Autossudisance alim europe/Europe/vente_ue.csv")
+
+#data cleaning
+area_eu<-filter(area_eu, TIME_PERIOD==2019)
+area_eu<-select(area_eu,geo,OBS_VALUE)
+area_eu<-rename(area_eu,area=OBS_VALUE)
+
+#Merging of different databases
+europe_<-merge(europe,code, by.x="NAME",by.y="Country.name")
+europe_<-merge(europe_,area_eu, by.x="ISO2",by.y="geo")
+europe_<-merge(europe_,sale_org_ue, by.x="NAME",by.y="Country")
+
+#Remove missing observations
+na<-which(is.na(europe_@data[,c("Sales","area")]))
+europe_<-europe_[-na, ]
+
+#Transformation of the spatial data frame into an Sf object
+europe_<-spTransform(europe_,CRS("+proj=robin"))
+europe_sf<-st_as_sf(europe_)
+
+#Dougenik Algorithm
+eu_cont_sales <- cartogram_cont(x = europe_sf, "Sales",itermax=15)
+eu_cont_area <- cartogram_cont(x = europe_sf, "area",itermax=15) 
+
+#data vizualisation
+plot(st_geometry(eu_cont_sales), col = "#07a40c", border= "white", bg = "lightblue")
+layoutLayer("Organic area in European Union in 2019",tabtitle=TRUE,col="black", 
+            author= "Emilien Veron", sources="Eurostat 2020", frame=FALSE, scale = "auto",north = T)
+plot(st_geometry(eu_cont_area), col = "#07a40c", border= "white", bg = "lightblue")
+layoutLayer("Organic sales in European Union in 2019",col="black",tabtitle=TRUE, 
+            author= "Emilien Veron", sources="FiBl 2020", frame=FALSE, scale = "auto",north = T)
+
+
